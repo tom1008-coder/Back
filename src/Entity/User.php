@@ -14,6 +14,7 @@ use Symfony\Component\Uid\Uuid;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Serializer\Attribute\Ignore;
+use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Metadata\ApiProperty;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -35,13 +36,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180, unique: true)]
     #[ApiProperty(readable: true, writable: false)]
+    #[Assert\NotBlank(message: "L'email ne peut pas être vide.")]
+    #[Assert\Email(message: "L'email '{{ value }}' n'est pas valide.")]
     private string $email;
 
     #[ORM\Column]
     #[Ignore]
+    #[Assert\NotBlank(message: "Le mot de passe ne peut pas être vide.")]
+    #[Assert\Length(min: 6, minMessage: "Le mot de passe doit contenir au moins 6 caractères.")]
     private string $password;
 
     #[ORM\Column(length: 50)]
+    #[Assert\NotBlank(message: "Le rôle ne peut pas être vide.")]
+    #[Assert\Choice(choices: ['client', 'agent', 'admin'], message: "Le rôle doit être 'client', 'agent' ou 'admin'.")]
     private string $role; // 'client', 'agent', 'admin'
 
     #[ORM\OneToMany(mappedBy: 'client', targetEntity: Ticket::class)]

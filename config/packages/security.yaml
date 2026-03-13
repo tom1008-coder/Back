@@ -41,8 +41,11 @@ security:
 
     # Gestion des accès
     access_control:
-        # Autorise tout le monde à se connecter
+        # login libre
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
 
-        # Exige une authentification pour toutes les autres routes /api/
+        # admin seulement
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
+
+        # toutes les autres routes API → utilisateur connecté
         - { path: ^/api/, roles: ROLE_USER }
