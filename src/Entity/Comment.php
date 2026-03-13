@@ -1,24 +1,26 @@
 <?php
+
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use App\Repository\CommentRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
+use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: CommentRepository::class)]
+#[ORM\Entity]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource]
 class Comment
 {
     #[ORM\Id]
-    #[ORM\Column(type: "uuid", unique: true)]
-    private string $id;
+    #[ORM\Column(type: 'uuid', unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    private ?Uuid $id = null;
 
-    #[ORM\Column(type: "text")]
+    #[ORM\Column(type: 'text')]
     private string $content;
 
-    #[ORM\ManyToOne(targetEntity: Ticket::class, inversedBy: "comments")]
+    #[ORM\ManyToOne(targetEntity: Ticket::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
     private Ticket $ticket;
 
@@ -28,19 +30,46 @@ class Comment
 
     use \App\Entity\Traits\TimestampableTrait;
 
-    public function __construct()
+    public function getId(): ?Uuid
     {
-        $this->id = Uuid::uuid4()->toString();
+        return $this->id;
     }
 
-    public function getId(): string { return $this->id; }
+    public function getIdAsString(): ?string
+    {
+        return $this->id?->toRfc4122();
+    }
 
-    public function getContent(): string { return $this->content; }
-    public function setContent(string $c): self { $this->content = $c; return $this; }
+    public function getContent(): string
+    {
+        return $this->content;
+    }
 
-    public function getTicket(): Ticket { return $this->ticket; }
-    public function setTicket(Ticket $t): self { $this->ticket = $t; return $this; }
+    public function setContent(string $content): self
+    {
+        $this->content = $content;
+        return $this;
+    }
 
-    public function getAuthor(): User { return $this->author; }
-    public function setAuthor(User $u): self { $this->author = $u; return $this; }
+    public function getTicket(): Ticket
+    {
+        return $this->ticket;
+    }
+
+    public function setTicket(Ticket $ticket): self
+    {
+        $this->ticket = $ticket;
+        return $this;
+    }
+
+    public function getAuthor(): User
+    {
+        return $this->author;
+    }
+
+    public function setAuthor(User $author): self
+    {
+        $this->author = $author;
+        return $this;
+    }
 }
